@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mensaje Romántico en Código QR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Georgia', serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffeff3, #ffd6e0);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #5a1a2e;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            text-align: center;
+            margin: 20px 0 40px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem;
+            color: #a00037;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #7a2b4a;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .qr-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(160, 0, 55, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .qr-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #a00037;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        #qrcode {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .instructions {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: #7a2b4a;
+            line-height: 1.6;
+        }
+        
+        .poem-display {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(160, 0, 55, 0.15);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            display: none;
+        }
+        
+        .message-container {
+            position: relative;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .poem {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            text-align: justify;
+            color: #5a1a2e;
+        }
+        
+        .poem strong {
+            color: #a00037;
+            font-weight: normal;
+            font-style: italic;
+        }
+        
+        .animation-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .rose-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.15;
+            filter: blur(1.5px);
+            animation: float 8s ease-in-out infinite, rotate 60s linear infinite;
+        }
+        
+        .rose {
+            font-size: 25vmin;
+        }
+        
+        .hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: fall 10s linear infinite;
+        }
+        
+        footer {
+            margin: 40px 0;
+            text-align: center;
+            color: #7a2b4a;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+            50% { transform: translate(-50%, -50%) translateY(-25px); }
+        }
+        
+        @keyframes rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @keyframes fall {
+            0% { 
+                top: -10%; 
+                opacity: 0.8;
+                transform: translateX(0) rotate(0deg);
+            }
+            100% { 
+                top: 110%; 
+                opacity: 0;
+                transform: translateX(100px) rotate(360deg);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.8rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .qr-section, .poem-display {
+                padding: 20px;
+            }
+            
+            .poem {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Scrollbar styling */
+        .message-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .message-container::-webkit-scrollbar-track {
+            background: rgba(255, 240, 245, 0.5);
+            border-radius: 10px;
+        }
+        
+        .message-container::-webkit-scrollbar-thumb {
+            background: #d10047;
+            border-radius: 10px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mensaje Romántico Científico</h1>
+            <p class="subtitle">Escanea el código QR para descubrir un poema de amor único</p>
+        </header>
+        
+        <div class="qr-section">
+            <h2 class="qr-title">Tu Código QR</h2>
+            <div id="qrcode"></div>
+            <div class="instructions">
+                <p>1. Escanea este código con tu teléfono</p>
+                <p>2. Descubre un mensaje especial de amor</p>
+                <p>3. Comparte con esa persona única</p>
+            </div>
+        </div>
+        
+        <div id="poemDisplay" class="poem-display">
+            <div class="animation-layer">
+                <div class="rose-container">
+                    <div class="rose">🌹</div>
+                </div>
+                <div class="hearts" id="hearts"></div>
+            </div>
+            
+            <div class="message-container">
+                <div class="poem" id="poem">
+                    En el laboratorio vasto de este mundo,<br>
+                    donde tantas colonias crecen sin rumbo ni cuidado,<br>
+                    <strong>tú eres el cultivo más raro y preciado:</strong><br>
+                    una cepa única de luz y ternura mulata,<br>
+                    <strong>pequeña sí, pero con un genoma de titán.</strong><br><br>
+
+                    Tu ser es un ecosistema complejo y bello:<br>
+                    <strong>Tus sentimientos, medios de cultivo ricos y profundos,</strong><br>
+                    donde florece el agar de la empatía,<br>
+                    y los nutrientes de la risa alimentan<br>
+                    <strong>biopelículas de abrazos inquebrantables.</strong><br>
+                    Eres un biofilm cálido, amor mío,<br>
+                    <strong>que adhiere mi alma a la placa de Petri de tus días.</strong><br><br>
+
+                    <strong>Y estoy tan orgulloso.</strong><br>
+                    Orgulloso de tu <strong>resistencia innata</strong>,<br>
+                    como esas bacterias extremófilas que desafían ambientes hostiles.<br>
+                    Orgulloso de tu <strong>inteligencia sutil</strong>,<br>
+                    la que decodifica emociones con la precisión de una PCR,<br>
+                    amplificando cada gesto bueno,<br>
+                    reduciendo al mínimo el ruido del desencuentro.<br>
+                    <strong>Orgulloso de tu dulzura, tu azúcar esencial</strong>,<br>
+                    que fermenta mis horas grises en algo luminoso y vivo.<br><br>
+
+                    Sé que habrá <strong>contaminaciones</strong>:<br>
+                    Discusiones que entren como fagos virulentos,<br>
+                    estrés que intente alterar nuestro pH,<br>
+                    días que parezcan un agar seco y agrietado.<br>
+                    Habrá mutaciones inesperadas en el guion,<br>
+                    <strong>pero nuestro vínculo es un plásmido conjugativo:</strong><br>
+                    <strong>transferimos resiliencia, copiamos apoyo,<br>
+                    expresamos paciencia bajo cualquier promotor.</strong><br><br>
+
+                    Porque <strong>juntos somos simbiosis perfecta.</strong><br>
+                    Tú, mi mitocondria indispensable,<br>
+                    dándome energía con tu cariño constante.<br>
+                    Yo, quizás tu ribosoma fiel,<br>
+                    ensamblando esperanzas a tu ritmo, aminoácido a aminoácido.<br>
+                    <strong>No somos colonias aisladas, somos un consorcio microbiano:</strong><br>
+                    mezclamos nuestros metabolismos,<br>
+                    <strong>creando un caldo de cultivo donde el futuro crece denso y prometedor.</strong><br><br>
+
+                    Avancemos, pues, en este incubador compartido.<br>
+                    Que nuestra <strong>tinción de Gram sea siempre positiva</strong>,<br>
+                    mostrando la capa gruesa de amor que nos protege.<br>
+                    <strong>Clonemos los momentos buenos, secuenciemos nuestras risas</strong>,<br>
+                    y aunque las mutaciones vengan,<br>
+                    <strong>nuestro genoma esencial, ese que nos une,<br>
+                    será inmune a la deleción.</strong><br><br>
+
+                    Porque <strong>eres mi cepa maestra, mi descubrimiento más valioso.<br>
+                    El cultivo puro del que brota todo orgullo,<br>
+                    y el único medio en el que mi vida florece definitiva.</strong>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Este código QR contiene un mensaje romántico único. Compártelo con la persona especial en tu vida.</p>
+            <p>© 2023 - Mensaje de Amor en Código QR</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generar corazones flotantes
+            function createHearts() {
+                const heartsContainer = document.getElementById('hearts');
+                if (!heartsContainer) return;
+                
+                const heartCount = 20;
+                
+                for (let i = 0; i < heartCount; i++) {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.innerHTML = '❤';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.animationDelay = Math.random() * 10 + 's';
+                    heart.style.color = `hsl(${Math.random() * 360}, 70%, 65%)`;
+                    heartsContainer.appendChild(heart);
+                }
+            }
+            
+            // Generar código QR que apunta a esta misma página con el hash #poema
+            function generateQRCode() {
+                const qrcodeDiv = document.getElementById('qrcode');
+                const currentUrl = window.location.href.split('#')[0] + '#poema';
+                
+                // Limpiar contenedor
+                qrcodeDiv.innerHTML = '';
+                
+                // Generar nuevo código QR
+                new QRCode(qrcodeDiv, {
+                    text: currentUrl,
+                    width: 220,
+                    height: 220,
+                    colorDark: "#a00037",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+            
+            // Resaltar texto en negrita
+            function highlightBoldText() {
+                const poem = document.getElementById('poem');
+                if (!poem) return;
+                
+                const text = poem.innerHTML;
+                
+                // Resaltar texto entre ** ** con etiquetas strong
+                const formattedText = text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                poem.innerHTML = formattedText;
+            }
+            
+            // Mostrar el poema si el hash es #poema
+            function checkHash() {
+                if (window.location.hash === '#poema') {
+                    document.querySelector('.qr-section').style.display = 'none';
+                    document.getElementById('poemDisplay').style.display = 'block';
+                    
+                    // Iniciar animaciones
+                    createHearts();
+                    
+                    // Animación de aparición del texto
+                    animatePoem();
+                }
+            }
+            
+            // Animación de aparición del poema
+            function animatePoem() {
+                const poem = document.getElementById('poem');
+                if (!poem) return;
+                
+                // Ocultar todo el texto inicialmente
+                poem.style.opacity = '0';
+                poem.style.transition = 'opacity 2s ease-in-out';
+                
+                setTimeout(() => {
+                    poem.style.opacity = '1';
+                }, 500);
+                
+                // Animación de los corazones
+                createHearts();
+            }
+            
+            // Inicializar
+            generateQRCode();
+            highlightBoldText();
+            checkHash();
+            
+            // Escuchar cambios en el hash
+            window.addEventListener('hashchange', checkHash);
+        });
+    </script>
+</body>
+</html>
